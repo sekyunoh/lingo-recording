@@ -32,7 +32,7 @@ class ProfileViewController: BaseFormViewController, UITextFieldDelegate {
       guard let name = user["name"] as? String else {
         return
       }
-      guard let schoolId = user["schoolId"] as? Int else {
+      guard (user["schoolId"] as? Int) != nil else {
         return
       }
       form
@@ -114,7 +114,7 @@ class ProfileViewController: BaseFormViewController, UITextFieldDelegate {
           HUD.error()
           self.log.error("error=\(error)")
       }).addDisposableTo(disposeBag)
-    navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Stop, target: self, action: "didClickFinish")
+    navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Stop, target: self, action: #selector(ProfileViewController.didClickFinish))
   }
   
   func didClickFinish() {

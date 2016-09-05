@@ -91,7 +91,7 @@ extension MainTabBarController {
       self?.selectedIndex = selectedIndex
     }
     viewControllers![centerButtonIndex].view.addSubview(tempView)
-    presentViewController(SideNavigationController(mainViewController: UINavigationController(rootViewController: flashcardsVC), leftViewController: nil, rightViewController: FlashcardsSideBarViewController(viewModel: viewModel, groups: groups)), animated: true, completion: {
+    presentViewController(NavigationDrawerController(rootViewController: UINavigationController(rootViewController: flashcardsVC), leftViewController: nil, rightViewController: FlashcardsSideBarViewController(viewModel: viewModel, groups: groups)), animated: true, completion: {
           self.selectedIndex = selectedIndex
     })
 

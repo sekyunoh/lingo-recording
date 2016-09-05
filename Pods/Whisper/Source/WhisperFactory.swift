@@ -1,19 +1,11 @@
 import UIKit
 
-public enum Action: String {
+public enum WhisperAction: String {
   case Present = "Whisper.PresentNotification"
   case Show = "Whisper.ShowNotification"
 }
 
 let whisperFactory: WhisperFactory = WhisperFactory()
-
-public func Whisper(message: Message, to: UINavigationController, action: Action = .Show) {
-  whisperFactory.craft(message, navigationController: to, action: action)
-}
-
-public func Silent(controller: UINavigationController, after: NSTimeInterval = 0) {
-  whisperFactory.silentWhisper(controller, after: after)
-}
 
 class WhisperFactory: NSObject {
 
@@ -25,7 +17,7 @@ class WhisperFactory: NSObject {
     static let totalDelay: NSTimeInterval = popUp + movement * 2
   }
 
-  var navigationController = UINavigationController()
+  weak var navigationController: UINavigationController?
   var edgeInsetHeight: CGFloat = 0
   var whisperView: WhisperView!
   var delayTimer = NSTimer()
@@ -36,16 +28,16 @@ class WhisperFactory: NSObject {
 
   override init() {
     super.init()
-    NSNotificationCenter.defaultCenter().addObserver(self, selector: "orientationDidChange", name: UIDeviceOrientationDidChangeNotification, object: nil)
+    NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(WhisperFactory.orientationDidChange), name: UIDeviceOrientationDidChangeNotification, object: nil)
   }
 
   deinit {
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIDeviceOrientationDidChangeNotification, object: nil)
   }
 
-  func craft(message: Message, navigationController: UINavigationController, action: Action) {
+  func craft(message: Message, navigationController: UINavigationController, action: WhisperAction) {
     self.navigationController = navigationController
-    self.navigationController.delegate = self
+    self.navigationController?.delegate = self
     presentTimer.invalidate()
 
     var containsWhisper = false
@@ -88,8 +80,9 @@ class WhisperFactory: NSObject {
   }
 
   func silentWhisper(controller: UINavigationController, after: NSTimeInterval) {
-    navigationController = controller
-
+    self.navigationController = controller
+    guard let navigationController = self.navigationController else { return }
+    
     var whisperSubview: WhisperView? = nil
     for subview in navigationController.navigationBar.subviews {
       if let whisper = subview as? WhisperView {
@@ -105,7 +98,7 @@ class WhisperFactory: NSObject {
     whisperView = whisperSubview
     delayTimer.invalidate()
     delayTimer = NSTimer.scheduledTimerWithTimeInterval(after, target: self,
-      selector: "delayFired:", userInfo: nil, repeats: false)
+      selector: #selector(WhisperFactory.delayFired(_:)), userInfo: nil, repeats: false)
   }
 
   // MARK: - Presentation
@@ -143,11 +136,11 @@ class WhisperFactory: NSObject {
       }
       }, completion: { _ in
         self.delayTimer = NSTimer.scheduledTimerWithTimeInterval(1.5, target: self,
-          selector: "delayFired:", userInfo: nil, repeats: false)
+          selector: #selector(WhisperFactory.delayFired(_:)), userInfo: nil, repeats: false)
     })
   }
 
-  func changeView(message: Message, action: Action) {
+  func changeView(message: Message, action: WhisperAction) {
     presentTimer.invalidate()
     delayTimer.invalidate()
     hideView()
@@ -161,7 +154,7 @@ class WhisperFactory: NSObject {
     if let images = message.images { array["images"] = images }
 
     presentTimer = NSTimer.scheduledTimerWithTimeInterval(AnimationTiming.movement * 1.1, target: self,
-      selector: "presentFired:", userInfo: array, repeats: false)
+      selector: #selector(WhisperFactory.presentFired(_:)), userInfo: array, repeats: false)
   }
 
   func hideView() {
@@ -185,7 +178,8 @@ class WhisperFactory: NSObject {
   }
 
   func presentFired(timer: NSTimer) {
-    guard let userInfo = timer.userInfo,
+    guard let navigationController = self.navigationController,
+      userInfo = timer.userInfo,
       title = userInfo["title"] as? String,
       textColor = userInfo["textColor"] as? UIColor,
       backgroundColor = userInfo["backgroundColor"] as? UIColor,
@@ -195,7 +189,7 @@ class WhisperFactory: NSObject {
 
     if let imageArray = userInfo["images"] as? [UIImage]? { images = imageArray }
 
-    let action = Action(rawValue: actionString)
+    let action = WhisperAction(rawValue: actionString)
     let message = Message(title: title, textColor: textColor, backgroundColor: backgroundColor, images: images)
 
     whisperView = WhisperView(height: navigationController.navigationBar.frame.height, message: message)
@@ -216,7 +210,8 @@ class WhisperFactory: NSObject {
   // MARK: - Animations
 
   func moveControllerViews(down: Bool) {
-    guard let visibleController = navigationController.visibleViewController
+    guard let navigationController = self.navigationController,
+        visibleController = navigationController.visibleViewController
       where Config.modifyInset
       else { return }
 
@@ -242,14 +237,14 @@ class WhisperFactory: NSObject {
 
     if let tableView = viewController.view as? UITableView
       where viewController is UITableViewController {
-        tableView.contentInset = UIEdgeInsetsMake(tableView.contentInset.top + edgeInsetHeight, 0, 0, 0)
+        tableView.contentInset = UIEdgeInsetsMake(tableView.contentInset.top + edgeInsetHeight, tableView.contentInset.left, tableView.contentInset.bottom, tableView.contentInset.right)
     } else if let collectionView = viewController.view as? UICollectionView
       where viewController is UICollectionViewController {
-        collectionView.contentInset = UIEdgeInsetsMake(collectionView.contentInset.top + edgeInsetHeight, 0, 0, 0)
+        collectionView.contentInset = UIEdgeInsetsMake(collectionView.contentInset.top + edgeInsetHeight, collectionView.contentInset.left, collectionView.contentInset.bottom, collectionView.contentInset.right)
     } else {
       for view in viewController.view.subviews {
         if let scrollView = view as? UIScrollView {
-          scrollView.contentInset = UIEdgeInsetsMake(scrollView.contentInset.top + edgeInsetHeight, 0, 0, 0)
+          scrollView.contentInset = UIEdgeInsetsMake(scrollView.contentInset.top + edgeInsetHeight, scrollView.contentInset.left, scrollView.contentInset.bottom, scrollView.contentInset.right)
         }
       }
     }
@@ -258,6 +253,7 @@ class WhisperFactory: NSObject {
   // MARK: - Handling screen orientation
 
   func orientationDidChange() {
+    guard let navigationController = self.navigationController else { return }
     for subview in navigationController.navigationBar.subviews {
       guard let whisper = subview as? WhisperView else { continue }
 
@@ -301,7 +297,7 @@ extension WhisperFactory: UINavigationControllerDelegate {
 
       if let index = navigationController.viewControllers.indexOf(viewController) where index > 0 {
         edgeInsetHeight = -WhisperView.Dimensions.height
-        performControllerMove(navigationController.viewControllers[Int(index.value) - 1])
+        performControllerMove(navigationController.viewControllers[Int(index) - 1])
         break
       }
     }

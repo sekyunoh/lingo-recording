@@ -44,7 +44,7 @@ class CheckSerialViewController: FormViewController {
       }
       self.navigationItem.rightBarButtonItem?.enabled = serial.isValidSerial()
     })
-    form.rowByTag("serial")?.hightlightCell()
+    form.rowByTag("serial")?.highlightCell()
   }
   
   override func viewWillAppear(animated: Bool) {

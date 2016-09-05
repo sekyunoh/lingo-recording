@@ -56,17 +56,16 @@ class LoginViewController: ViewController, TextFieldDelegate {
     if let textField = textField as? TextField {
       if textField.returnKeyType == .Next {
         guard let email = textField.text else {
-          textField.detailLabelHidden = false
-          textField.detailLabel?.text = "이메일을 입력해 주세요."
+            textField.detail = "이메일을 입력해 주세요."
+            textField.clearButtonMode = .WhileEditing
           return false
         }
         
         if !email.isValidEmail() {
-          textField.detailLabelHidden = false
-          textField.detailLabel?.text = "올바른 이메일을 입력해 주세요."
+          textField.detail = "올바른 이메일을 입력해 주세요."
           return false
         }
-        textField.detailLabelHidden = true
+        
         
         textField.resignFirstResponder()
         loginView.passwordTextField.becomeFirstResponder()
@@ -82,31 +81,27 @@ class LoginViewController: ViewController, TextFieldDelegate {
   
   func doLogin() {
     guard let email = loginView.emailTextField.text else {
-      loginView.emailTextField.detailLabelHidden = false
-      loginView.emailTextField.detailLabel?.text = "이메일을 입력해 주세요."
+      loginView.emailTextField.detail = "이메일을 입력해 주세요."
       return
     }
     
     if !email.isValidEmail() {
-      loginView.emailTextField.detailLabelHidden = false
-      loginView.emailTextField.detailLabel?.text = "올바른 이메일을 입력해 주세요."
+      loginView.emailTextField.detail = "올바른 이메일을 입력해 주세요."
       return
     }
     
-    loginView.emailTextField.detailLabelHidden = true
+//    loginView.emailTextField.detailLabelHidden = true
     
     guard let password = loginView.passwordTextField.text else {
-      loginView.passwordTextField.detailLabel?.text = "비밀번호를 입력해주세요."
-      loginView.passwordTextField.detailLabelHidden = false
+      loginView.passwordTextField.detail = "비밀번호를 입력해주세요."
       return
     }
     
     if !password.isValidPassword() {
-      loginView.passwordTextField.detailLabel?.text = "올바른 비밀번호를 입력해주세요."
-      loginView.passwordTextField.detailLabelHidden = false
+      loginView.passwordTextField.detail = "올바른 비밀번호를 입력해주세요."
       return
     }
-    loginView.passwordTextField.detailLabelHidden = true
+//    loginView.passwordTextField.detailLabelHidden = true
     HUD.progress()
     API.instance.login([
       "email":email,

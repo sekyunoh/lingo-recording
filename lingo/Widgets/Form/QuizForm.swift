@@ -519,9 +519,9 @@ final class QuizRangePickerRow : _QuizRangePickerRow, RowType {
   }
 }
 
+typealias QuizRangePickerInlineRow = QuizRangePickerInlineRow_<QuizRange>
 
-
-final class QuizRangePickerInlineRow : _QuizRangePickerInlineRow, RowType, InlineRowType{
+final class QuizRangePickerInlineRow_<T> : _QuizRangePickerInlineRow, RowType, InlineRowType{
   
   required init(tag: String?) {
     super.init(tag: tag)

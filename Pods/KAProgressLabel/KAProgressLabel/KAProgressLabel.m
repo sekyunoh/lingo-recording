@@ -13,7 +13,8 @@
 #define KARadiansToDegrees(radians) ((radians)*180.0/M_PI)
 
 @implementation KAProgressLabel {
-    __unsafe_unretained TPPropertyAnimation *_currentAnimation;
+    TPPropertyAnimation *_currentStartDegreeAnimation;
+    TPPropertyAnimation *_currentEndDegreeAnimation;
 }
 
 @synthesize startDegree = _startDegree;
@@ -120,8 +121,8 @@
 
 -(void)drawRect:(CGRect)rect
 {
-    [self drawProgressLabelCircleInRect:rect];
-    [super drawTextInRect:rect];
+    [self drawProgressLabelCircleInRect:self.bounds];
+    [super drawTextInRect:self.bounds];
 }
 
 #pragma mark - KVO
@@ -190,6 +191,7 @@
 -(void)setStartDegree:(CGFloat)startDegree timing:(TPPropertyAnimationTiming)timing duration:(CGFloat)duration delay:(CGFloat)delay
 {
     TPPropertyAnimation *animation = [TPPropertyAnimation propertyAnimationWithKeyPath:@"startDegree"];
+    animation.delegate = self;
     animation.fromValue = @(_startDegree+90);
     animation.toValue = @(startDegree);
     animation.duration = duration;
@@ -197,12 +199,13 @@
     animation.timing = timing;
     [animation beginWithTarget:self];
     
-    _currentAnimation = animation;
+    _currentStartDegreeAnimation = animation;
 }
 
 -(void)setEndDegree:(CGFloat)endDegree timing:(TPPropertyAnimationTiming)timing duration:(CGFloat)duration delay:(CGFloat)delay
 {
     TPPropertyAnimation *animation = [TPPropertyAnimation propertyAnimationWithKeyPath:@"endDegree"];
+    animation.delegate = self;
     animation.fromValue = @(_endDegree+90);
     animation.toValue = @(endDegree);
     animation.duration = duration;
@@ -210,7 +213,7 @@
     animation.timing = timing;
     [animation beginWithTarget:self];
     
-    _currentAnimation = animation;
+    _currentEndDegreeAnimation = animation;
 }
 
 -(void)setProgress:(CGFloat)progress timing:(TPPropertyAnimationTiming)timing duration:(CGFloat)duration delay:(CGFloat)delay
@@ -220,8 +223,23 @@
 
 - (void) stopAnimations
 {
-    if (_currentAnimation != nil) {
-        [_currentAnimation cancel];
+    if (_currentStartDegreeAnimation != nil) {
+        [_currentStartDegreeAnimation cancel];
+        _currentStartDegreeAnimation = nil;
+    }
+    if (_currentEndDegreeAnimation != nil) {
+        [_currentEndDegreeAnimation cancel];
+        _currentEndDegreeAnimation = nil;
+    }
+}
+
+- (void)propertyAnimationDidFinish:(TPPropertyAnimation*)propertyAnimation
+{
+    _currentStartDegreeAnimation = nil;
+    _currentEndDegreeAnimation = nil;
+    
+    if (self.labelAnimCompleteBlock) {
+        self.labelAnimCompleteBlock(self);
     }
 }
 
@@ -292,7 +310,12 @@
     CGFloat archXPos = rect.size.width/2 + rect.origin.x;
     CGFloat archYPos = rect.size.height/2 + rect.origin.y;
     CGFloat archRadius = (circleRect.size.width) / 2.0;
-    
+
+    int clockwise = 0;
+    if (self.progress < 0.0f) {
+        clockwise = 1;
+    }
+
     CGFloat trackStartAngle = KADegreesToRadians(0);
     CGFloat trackEndAngle = KADegreesToRadians(360);
     CGFloat progressStartAngle = KADegreesToRadians(_startDegree);
@@ -314,11 +337,11 @@
     // Progress
     CGContextSetStrokeColorWithColor(context, self.progressColor.CGColor);
     CGContextSetLineWidth(context, _progressWidth);
-    CGContextAddArc(context, archXPos,archYPos, archRadius, progressStartAngle, progressEndAngle, 0);
+    CGContextAddArc(context, archXPos, archYPos, archRadius, progressStartAngle, progressEndAngle, clockwise);
     CGContextStrokePath(context);
     
     // Rounded corners
-    if(_roundedCornersWidth > 0){
+    if (_roundedCornersWidth > 0 && self.progress != 0.0f) {
         CGContextSetFillColorWithColor(context, self.progressColor.CGColor);
         CGContextAddEllipseInRect(context, [self rectForDegree:_startDegree andRect:rect]);
         CGContextAddEllipseInRect(context, [self rectForDegree:_endDegree andRect:rect]);

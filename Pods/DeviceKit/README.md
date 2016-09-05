@@ -1,6 +1,6 @@
 [![GitHub license](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://raw.githubusercontent.com/dennisweissmann/DeviceKit/master/LICENSE)
 [![Build Status](https://travis-ci.org/dennisweissmann/DeviceKit.svg)](https://travis-ci.org/dennisweissmann/DeviceKit)
-[![CocoaPods Compatible](https://img.shields.io/cocoapods/v/DeviceKit.svg)](https://travis-ci.org/dennisweissmann/DeviceKit)
+[![CocoaPods Compatible](https://img.shields.io/cocoapods/v/DeviceKit.svg)](https://cocoapods.org/pods/DeviceKit)
 [![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![Platform](https://img.shields.io/cocoapods/p/DeviceKit.svg?style=flat)](http://cocoadocs.org/docsets/DeviceKit)
 
@@ -18,8 +18,9 @@
 
 ## Requirements
 
-- iOS 8.0+ / tvOS 9.0+
-- Xcode 7.2+
+- iOS 8.0+ / tvOS 9.0+ (linking against iOS 9.3 and tvOS 9.2 required)
+- Xcode 7.3+
+- A Swift 3 version can the found in the swift-3 branch (should run with the latest beta, if not please open an issue)
 
 ## Installation
 DeviceKit can be installed in various ways.
@@ -30,13 +31,13 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '8.0'
 use_frameworks!
 
-pod 'DeviceKit', '~> 0.3.0'
+pod 'DeviceKit', '~> 0.3.4'
 ```
 
 ### Carthage
 
 ```ogdl
-github "dennisweissmann/DeviceKit" ~> 0.3.0
+github "dennisweissmann/DeviceKit" ~> 0.3.4
 ```
 
 ### Manually

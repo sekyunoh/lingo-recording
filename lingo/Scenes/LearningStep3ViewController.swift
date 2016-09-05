@@ -203,18 +203,18 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
     }
     learningManager.learnedWordIds.removeAll()
     updateCurrentWord()
-    let singleTap = UITapGestureRecognizer(target: self, action:"didTapImage:")
+    let singleTap = UITapGestureRecognizer(target: self, action:#selector(LearningStep3ViewController.didTapImage(_:)))
     singleTap.numberOfTapsRequired = 1
     wordImageView.addGestureRecognizer(singleTap)
-    let toggleStar = UITapGestureRecognizer(target: self, action: "toggleStarred")
+    let toggleStar = UITapGestureRecognizer(target: self, action: #selector(LearningStep3ViewController.toggleStarred))
     toggleStar.numberOfTapsRequired = 1
     starView.addGestureRecognizer(toggleStar)
   }
   
   override func viewWillAppear(animated: Bool) {
     super.viewWillAppear(animated)
-    navigationItem.leftBarButtonItem = UIBarButtonItem(title: "끝내기", style: .Plain, target: self, action: "didTapBack:")
-    navigationItem.rightBarButtonItem = UIBarButtonItem(title: "3단계", style: .Plain, target: nil, action: "")
+    navigationItem.leftBarButtonItem = UIBarButtonItem(title: "끝내기", style: .Plain, target: self, action: #selector(LearningStep3ViewController.didTapBack(_:)))
+    navigationItem.rightBarButtonItem = UIBarButtonItem(title: "3단계", style: .Plain, target: nil, action: Selector(""))
     navigationItem.hidesBackButton = true
     answerIndicatorView.layoutIfNeeded()
   }
@@ -261,7 +261,7 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
       learningManager?.learnedWordIds.append(currentWord.id)
       SessionManager.instance.editionManager?.learnWord(learningManager!.groupId, wordId: currentWord.id)
     } else {
-      currentRetryCount++
+      currentRetryCount += 1
       if currentRetryCount < maxRetryCount {
         if maxRetryCount - currentRetryCount == 1 && currentWord.word.length > 2 {
           var hint = currentWord.word.substringToIndex(currentWord.word.startIndex.advancedBy(2))
@@ -381,7 +381,7 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
   // MARK: AVAudioPlayerDelegate
   func audioPlayerDidFinishPlaying(player: AVAudioPlayer, successfully flag: Bool) {
     if currentWordIndex + 1 < words.count {
-      currentWordIndex++
+      currentWordIndex += 1
       updateCurrentWord()
     } else {
       // check if the user finishes all

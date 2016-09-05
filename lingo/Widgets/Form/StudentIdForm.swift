@@ -321,8 +321,9 @@ public final class StudentIdPickerRow : _StudentIdPickerRow, RowType {
 }
 
 
+public typealias StudentIdPickerInlineRow = StudentIdPickerInlineRow_<StudentId>
 
-public final class StudentIdPickerInlineRow : _StudentIdPickerInlineRow, RowType, InlineRowType{
+public final class StudentIdPickerInlineRow_<T>: _StudentIdPickerInlineRow, RowType, InlineRowType {
   
   required public init(tag: String?) {
     super.init(tag: tag)
@@ -342,5 +343,6 @@ public final class StudentIdPickerInlineRow : _StudentIdPickerInlineRow, RowType
     }
   }
 }
+
 
 

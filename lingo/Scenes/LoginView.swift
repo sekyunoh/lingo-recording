@@ -14,8 +14,8 @@ class LoginView: UIView {
   
   
   
-  var emailTextField: TextField!
-  var passwordTextField: TextField!
+  var emailTextField: ErrorTextField!
+  var passwordTextField: ErrorTextField!
   var forgotPasswordButton: FlatButton!
   
   var signinButton: UIButton!
@@ -37,48 +37,45 @@ class LoginView: UIView {
   private func initUI() {
     self.backgroundColor = UIColor.whiteColor()
     
-    let tapper = UITapGestureRecognizer(target: self, action: "dismissKeyboard")
+    let tapper = UITapGestureRecognizer(target: self, action: #selector(LoginView.dismissKeyboard))
     tapper.cancelsTouchesInView = false
     addGestureRecognizer(tapper)
     
-    emailTextField = TextField().then {
+    emailTextField = ErrorTextField().then {
       $0.placeholder = "이메일"
       $0.font = RobotoFont.regularWithSize(18)
       $0.keyboardType = .EmailAddress
-      $0.titleLabel = UILabel()
       $0.autocorrectionType = .No
       $0.autocapitalizationType = .None
-      $0.titleLabel!.font = RobotoFont.mediumWithSize(13)
-      $0.titleLabelColor = MaterialColor.grey.lighten1
-      $0.titleLabelActiveColor = MaterialColor.blue.accent3
+      //      $0.titleLabel!.font = RobotoFont.mediumWithSize(13)
+      //      $0.titleLabelColor = MaterialColor.grey.lighten1
+      //      $0.titleLabelActiveColor = MaterialColor.blue.accent3
       $0.clearButtonMode = .WhileEditing
       
-      $0.detailLabel = UILabel().then {
-        $0.font = RobotoFont.mediumWithSize(12)
-        $0.text = "올바른 이메일을 입력해주세요."
-      }
+      $0.detail = "올바른 이메일을 입력해주세요."
+      
       $0.returnKeyType = .Next
-      $0.detailLabelActiveColor = MaterialColor.red.accent3
-      $0.titleLabelAnimationDistance = 4
-      $0.detailLabelAnimationDistance = 4
+//      $0.detailLabelActiveColor = MaterialColor.red.accent3
+//      $0.titleLabelAnimationDistance = 4
+//      $0.detailLabelAnimationDistance = 4
     }
-    passwordTextField = TextField().then {
+    passwordTextField = ErrorTextField().then {
       $0.placeholder = "비밀번호"
       $0.secureTextEntry = true
       $0.font = RobotoFont.regularWithSize(18)
-      $0.titleLabel = UILabel()
-      $0.titleLabel!.font = RobotoFont.mediumWithSize(13)
-      $0.titleLabelColor = MaterialColor.grey.lighten1
-      $0.titleLabelActiveColor = MaterialColor.blue.accent3
+//      $0.titleLabel = UILabel()
+//      $0.titleLabel!.font = RobotoFont.mediumWithSize(13)
+//      $0.titleLabelColor = MaterialColor.grey.lighten1
+//      $0.titleLabelActiveColor = MaterialColor.blue.accent3
       $0.clearButtonMode = .WhileEditing
-      $0.returnKeyType = .Done      
-      $0.detailLabel = UILabel().then {
-        $0.font = RobotoFont.mediumWithSize(12)
-        $0.text = "비밀번호를 입력해주세요."
-      }
-      $0.detailLabelActiveColor = MaterialColor.red.accent3
-      $0.titleLabelAnimationDistance = 4
-      $0.detailLabelAnimationDistance = 4
+      $0.returnKeyType = .Done
+//      $0.detailLabel = UILabel().then {
+//        $0.font = RobotoFont.mediumWithSize(12)
+//        $0.text = "비밀번호를 입력해주세요."
+//      }
+//      $0.detailLabelActiveColor = MaterialColor.red.accent3
+//      $0.titleLabelAnimationDistance = 4
+//      $0.detailLabelAnimationDistance = 4
     }
     
     forgotPasswordButton = FlatButton(type: .System).then {

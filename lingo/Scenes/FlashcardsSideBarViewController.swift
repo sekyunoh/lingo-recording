@@ -72,7 +72,7 @@ class FlashcardsSideBarViewController: ViewController {
     // Use MaterialLayout to easily align the tableView.
     view.addSubview(tableView)
     tableView.translatesAutoresizingMaskIntoConstraints = false
-    MaterialLayout.alignToParent(view, child: tableView)
+//    MaterialLayout.alignToParent(view, child: tableView)
   }
 }
 
@@ -144,7 +144,7 @@ extension FlashcardsSideBarViewController: UITableViewDelegate {
     print("Item selected \(indexPath)")
     self.indexPath = indexPath
     viewModel.indexPath.value = NSIndexPath(forRow: indexPath.row, inSection: indexPath.section)
-    if let slideNavigationVC = self.parentViewController as? SideNavigationController {
+    if let slideNavigationVC = self.parentViewController as? NavigationDrawerController {
       slideNavigationVC.closeRightView()
     }
   }

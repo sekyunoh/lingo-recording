@@ -240,7 +240,7 @@ class API {
   
   private func request<T: Response>(urlRequest: URLRequestConvertible) -> Observable<T> {
     return Observable.create { observer in
-      let request = Alamofire.request(urlRequest).responseObject(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), completionHandler:  {(response: Alamofire.Response<T, NSError>) in
+      let request = Alamofire.request(urlRequest).responseObject(queue: dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), completionHandler:  {(response: Alamofire.Response<T, NSError>) in
         if let error = response.result.error {
           observer.on(.Error(error))
           return

@@ -34,7 +34,7 @@ All the sounds are fully customizable, from colors to fonts.
 
 Shouts have an optional action that will be called if the user taps on it, and you'll even get a message when the Shout is gone. Finally, if you want to set how long the Shout should be displayed, you have a duration property.
 
-In Whisper, there is no need to think about scroll view insets anymore, this will be handled automatically. As and added bonus, when transitioning from one view controller to another, the next controllers offset will be adjusted like you would except. It just works!
+In Whisper, there is no need to think about scroll view insets anymore, this will be handled automatically. As and added bonus, when transitioning from one view controller to another, the next controllers offset will be adjusted like you would expect. It just works!
 
 ## Usage
 
@@ -44,21 +44,39 @@ The usage of the component is so simple, you just create a message in the case o
 
 ```swift
 let message = Message(title: "Enter your message here.", backgroundColor: UIColor.redColor())
-Whisper(message, to: navigationController, action: .Present)
+
+// Show and hide a message after delay
+show(whisper: message, to: navigationController, action: .Show)
+
+// Present a permanent message
+show(whisper: message, to: navigationController, action: .Present)
+
+// Hide a message
+hide(whisperFrom: navigationController)
 ```
 
 ##### For a Shout:
 
 ```swift
 let announcement = Announcement(title: "Your title", subtitle: "Your subtitle", image: UIImage(named: "avatar"))
-Shout(announcement, to: self)
+show(shout: announcement, to: navigationController, completion: {
+  print("The shout was silent.")
+})
 ```
 
 ##### For a Whistle:
 
 ```swift
 let murmur = Murmur(title: "This is a small whistle...")
-Whistle(murmur)
+
+// Show and hide a message after delay
+show(whistle: murmur, action: .Show(0.5))
+
+// Present a permanent status bar message
+show(whistle: murmur, action: .Present)
+
+// Hide a message
+hide(whistleAfter: 3)
 ```
 
 If you want to use **Whisper** with Objective-C, you can find information about it [here](https://github.com/hyperoslo/Whisper/wiki/Using-Whisper-in-Objective-C).
@@ -94,7 +112,7 @@ In the future the idea is to keep improving and add some features:
 
 ## Contribute
 
-We would love you to contribute to **Whisper**, check the [CONTRIBUTING](https://github.com/hyperoslo/Whisper/blob/master/CONTRIBUTING.md) file for more info.
+We would love for you to contribute to **Whisper**, check the [CONTRIBUTING](https://github.com/hyperoslo/Whisper/blob/master/CONTRIBUTING.md) file for more info.
 
 ## License
 

@@ -176,7 +176,7 @@ class ExamViewController: ViewController, AVAudioPlayerDelegate, UIScrollViewDel
   
   private func updateCurrentQuestion() {
     let question = questions[page]
-    log.debug("page=\(page) currentQuestion=\(question)")
+    log.debug("page=\(self.page) currentQuestion=\(question)")
     //    time = question.time
     time = 10
     self.timerProgress.progress = 0

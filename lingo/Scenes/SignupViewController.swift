@@ -32,7 +32,7 @@ class SignupViewController: BaseFormViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    self.log.debug("selected serial=\(serial)")
+    self.log.debug("selected serial=\(self.serial)")
     title = "회원가입"
     navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Done, target: self, action: "didClickSignup:")
     setupForm()

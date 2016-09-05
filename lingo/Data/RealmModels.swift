@@ -11,7 +11,7 @@ import RealmSwift
 import ObjectMapper
 
 public protocol Cloneable {
-  typealias Object
+  associatedtype Object
   func clone() -> Object
 }
 
@@ -197,7 +197,7 @@ class Edition: Object, Mappable {
   }
 }
 
-class Word: Object, Mappable, Equatable, Hashable {
+class Word: Object, Mappable {
   dynamic var id = 0
   dynamic var form = "";
   dynamic var word = "";

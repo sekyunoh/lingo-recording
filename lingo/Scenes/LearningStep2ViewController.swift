@@ -15,6 +15,7 @@ import SnapKit
 import RealmSwift
 import ZLSwipeableViewSwift
 import AVFoundation
+import Then
 
 
 class LearningStep2ViewController: ViewController, AVAudioPlayerDelegate, RestudyDelegate {
@@ -203,18 +204,18 @@ class LearningStep2ViewController: ViewController, AVAudioPlayerDelegate, Restud
     
     updateCurrentWord()
     for choiceButton in choiceButtons {
-      choiceButton.addTarget(self, action: "didTapChoice:", forControlEvents: .TouchUpInside)
+      choiceButton.addTarget(self, action: #selector(LearningStep2ViewController.didTapChoice(_:)), forControlEvents: .TouchUpInside)
     }
     
-    let singleTap = UITapGestureRecognizer(target: self, action: "toggleStarred")
+    let singleTap = UITapGestureRecognizer(target: self, action: #selector(LearningStep2ViewController.toggleStarred))
     singleTap.numberOfTapsRequired = 1
     starView.addGestureRecognizer(singleTap)
   }
   
   override func viewWillAppear(animated: Bool) {
     super.viewWillAppear(animated)
-    navigationItem.leftBarButtonItem = UIBarButtonItem(title: "끝내기", style: .Plain, target: self, action: "didTapBack:")
-    navigationItem.rightBarButtonItem = UIBarButtonItem(title: "2단계", style: .Plain, target: nil, action: "")
+    navigationItem.leftBarButtonItem = UIBarButtonItem(title: "끝내기", style: .Plain, target: self, action: #selector(LearningStep2ViewController.didTapBack(_:)))
+    navigationItem.rightBarButtonItem = UIBarButtonItem(title: "2단계", style: .Plain, target: nil, action: Selector(""))
     navigationItem.hidesBackButton = true
     answerIndicatorView.layoutIfNeeded()
   }
@@ -327,7 +328,7 @@ class LearningStep2ViewController: ViewController, AVAudioPlayerDelegate, Restud
   // MARK: AVAudioPlayerDelegate
   func audioPlayerDidFinishPlaying(player: AVAudioPlayer, successfully flag: Bool) {
     if currentWordIndex + 1 < words.count {
-      currentWordIndex++
+      currentWordIndex += 1
       updateCurrentWord()
     } else {
       // check if the user finishes all

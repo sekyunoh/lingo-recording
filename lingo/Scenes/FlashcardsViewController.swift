@@ -132,7 +132,7 @@ class FlashcardsViewController: ViewController {
     super.viewDidDisappear(animated)
     Defaults[viewModel.flashcardsRow] = indexPath.row
     Defaults[viewModel.flashcardsSection] = indexPath.section
-    log.debug("indexPath=\(indexPath)")
+    log.debug("indexPath=\(self.indexPath)")
   }
   
   func didSwipe(view: UIView, inDirection: Direction, directionVector: CGVector) -> () {
@@ -151,7 +151,7 @@ class FlashcardsViewController: ViewController {
   }
   
   func didTapSideBar(sender: UIBarButtonItem) {
-    if let slideNavigationVC = self.parentViewController?.parentViewController as? SideNavigationController {
+    if let slideNavigationVC = self.parentViewController?.parentViewController as? NavigationDrawerController {
       slideNavigationVC.openRightView()
     }
   }
@@ -182,7 +182,7 @@ class FlashcardsViewController: ViewController {
   
   func nextCardView() -> UIView? {
     if let groups = groups {
-      self.log.debug("nextTrackingIndexPath=\(nextTrackingIndexPath)")
+      self.log.debug("nextTrackingIndexPath=\(self.nextTrackingIndexPath)")
       let group = groups[nextTrackingIndexPath.section]
       let word = group.groupWords[nextTrackingIndexPath.row]
       let cardView = FlashcardView(frame: swipeableView.bounds)

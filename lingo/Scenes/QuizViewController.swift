@@ -31,7 +31,7 @@ class QuizViewController: ButtonBarPagerTabStripViewController {
     settings.style.buttonBarItemFont = .boldSystemFontOfSize(14)
     settings.style.selectedBarHeight = 3.0
     settings.style.buttonBarMinimumLineSpacing = 0
-    settings.style.buttonBarMinimumInteritemSpacing = 0
+//    settings.style.buttonBarMinimumInteritemSpacing = 0
     settings.style.buttonBarItemTitleColor = .darkGrayColor()
     settings.style.buttonBarItemsShouldFillAvailiableWidth = true
     settings.style.buttonBarLeftContentInset = 0

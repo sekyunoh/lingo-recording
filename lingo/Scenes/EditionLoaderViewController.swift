@@ -48,7 +48,7 @@ class EditionLoaderViewController: ViewController {
     view.quitButton.rx_tap.asDriver().driveNext(dismiss).addDisposableTo(disposeBag)
     view.retryButton.rx_tap.asDriver().driveNext(downloadWordFile).addDisposableTo(disposeBag)
     message.asDriver().drive(view.messageLabel.rx_text).addDisposableTo(disposeBag)
-    self.log.debug("resourceExists=\(Resources.exists(published.resourceName))")
+    self.log.debug("resourceExists=\(Resources.exists(self.published.resourceName))")
     if let publishedStatus = realm.objects(PublishedStatus).filter("id == \(published.id)").first {
       if publishedStatus.checksum != published.checksum {
         downloadWordFile()
