@@ -72,8 +72,11 @@ class FlashcardsSideBarViewController: ViewController {
     // Use MaterialLayout to easily align the tableView.
     view.addSubview(tableView)
     tableView.translatesAutoresizingMaskIntoConstraints = false
-//    MaterialLayout.alignToParent(view, child: tableView)
+    //MaterialLayout.alignToParent(view, child: tableView)
+    Layout.vertically(view, child: tableView)
+    Layout.horizontally(view, child: tableView)
   }
+
 }
 
 /// TableViewDataSource methods.

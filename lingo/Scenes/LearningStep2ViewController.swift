@@ -370,6 +370,7 @@ class LearningStep2ViewController: ViewController, AVAudioPlayerDelegate, Restud
           //          SELF.presentViewController(UINavigationController(rootViewController: LearningStep2ViewController()), animated: false, completion: nil)
           SELF.learningManager!.learningWordIds = SELF.learningManager!.notLearnedWordIds
           let step3VC = LearningStep3ViewController()
+          //let step3VC = SpeakingViewController()
           step3VC.restudyDelegate = SELF.restudyDelegate
           SELF.navigationController?.pushViewController(step3VC, animated: true, completion: nil)
           //          SELF.navigationController?.pushViewController(LearningStep2ViewController(), animated: true, completion: nil)

@@ -81,6 +81,14 @@
 		18CF38E51C3B8023009BA544 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18CF38E41C3B8023009BA544 /* ProfileViewController.swift */; };
 		18CF38E81C3B8356009BA544 /* CAPSPageMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18CF38E71C3B8356009BA544 /* CAPSPageMenu.swift */; };
 		18E02DA11C7AE6D2007BF409 /* UINavigationController+Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E02DA01C7AE6D2007BF409 /* UINavigationController+Completion.swift */; };
+		560D566D1D9407340023D284 /* AcousticModelEnglish.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 560D56691D9407340023D284 /* AcousticModelEnglish.bundle */; };
+		560D566E1D9407340023D284 /* AcousticModelSpanish.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 560D566A1D9407340023D284 /* AcousticModelSpanish.bundle */; };
+		560D566F1D9407340023D284 /* OpenEars.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 560D566B1D9407340023D284 /* OpenEars.framework */; };
+		560D56701D9407340023D284 /* Slt.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 560D566C1D9407340023D284 /* Slt.framework */; };
+		560D56741D9411380023D284 /* Record Button.png in Resources */ = {isa = PBXBuildFile; fileRef = 560D56731D9411380023D284 /* Record Button.png */; };
+		563A76B81D93E5E500C38EEA /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 563A76B71D93E5E500C38EEA /* CoreGraphics.framework */; };
+		563A76BA1D93E5E900C38EEA /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 563A76B91D93E5E900C38EEA /* UIKit.framework */; };
+		563A76BC1D93E5F000C38EEA /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 563A76BB1D93E5F000C38EEA /* AudioToolbox.framework */; };
 		9608AB631C6227E2005C27F1 /* CheckSerialViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9608AB621C6227E2005C27F1 /* CheckSerialViewModel.swift */; };
 		9608AB651C622963005C27F1 /* SessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9608AB641C622963005C27F1 /* SessionManager.swift */; };
 		9608AB681C622AB8005C27F1 /* SplashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9608AB671C622AB8005C27F1 /* SplashViewController.swift */; };
@@ -249,6 +257,14 @@
 		18CF38E71C3B8356009BA544 /* CAPSPageMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CAPSPageMenu.swift; sourceTree = "<group>"; };
 		18E02DA01C7AE6D2007BF409 /* UINavigationController+Completion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UINavigationController+Completion.swift"; sourceTree = "<group>"; };
 		41EDC6CEDEA05BB94EEA825C /* Pods_lingo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_lingo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		560D56691D9407340023D284 /* AcousticModelEnglish.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = AcousticModelEnglish.bundle; sourceTree = "<group>"; };
+		560D566A1D9407340023D284 /* AcousticModelSpanish.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = AcousticModelSpanish.bundle; sourceTree = "<group>"; };
+		560D566B1D9407340023D284 /* OpenEars.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = OpenEars.framework; sourceTree = "<group>"; };
+		560D566C1D9407340023D284 /* Slt.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Slt.framework; sourceTree = "<group>"; };
+		560D56731D9411380023D284 /* Record Button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Record Button.png"; sourceTree = "<group>"; };
+		563A76B71D93E5E500C38EEA /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		563A76B91D93E5E900C38EEA /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		563A76BB1D93E5F000C38EEA /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		6CF8906680C9DC88C5C2857B /* Pods-lingo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-lingo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-lingo/Pods-lingo.debug.xcconfig"; sourceTree = "<group>"; };
 		9608AB621C6227E2005C27F1 /* CheckSerialViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckSerialViewModel.swift; sourceTree = "<group>"; };
 		9608AB641C622963005C27F1 /* SessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionManager.swift; sourceTree = "<group>"; };
@@ -314,11 +330,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				560D56701D9407340023D284 /* Slt.framework in Frameworks */,
 				187445E81C97E8BE008CF709 /* MessageUI.framework in Frameworks */,
 				96FF9EFF1C720A10004B0F6A /* AVFoundation.framework in Frameworks */,
 				185B77DE1C71C05F00BD961D /* Security.framework in Frameworks */,
+				563A76B81D93E5E500C38EEA /* CoreGraphics.framework in Frameworks */,
 				9637567B1C6CCAEA0081C61B /* AdSupport.framework in Frameworks */,
+				563A76BC1D93E5F000C38EEA /* AudioToolbox.framework in Frameworks */,
+				563A76BA1D93E5E900C38EEA /* UIKit.framework in Frameworks */,
 				C64B45D2B47D3E8696AD298B /* Pods_lingo.framework in Frameworks */,
+				560D566F1D9407340023D284 /* OpenEars.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -493,6 +514,7 @@
 				96B7F1301D7CD74900630339 /* Eureka.framework */,
 				96B7F12D1D7CD72000630339 /* DeviceKit.framework */,
 				96B7F1291D7CD6F800630339 /* Alamofire.framework */,
+				560D56731D9411380023D284 /* Record Button.png */,
 				1875A8D41C33C85F00728680 /* lingo */,
 				1875A8D31C33C85F00728680 /* Products */,
 				4593150817242ED50B9CB809 /* Frameworks */,
@@ -709,6 +731,13 @@
 		4593150817242ED50B9CB809 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				560D56691D9407340023D284 /* AcousticModelEnglish.bundle */,
+				560D566A1D9407340023D284 /* AcousticModelSpanish.bundle */,
+				560D566B1D9407340023D284 /* OpenEars.framework */,
+				560D566C1D9407340023D284 /* Slt.framework */,
+				563A76BB1D93E5F000C38EEA /* AudioToolbox.framework */,
+				563A76B91D93E5E900C38EEA /* UIKit.framework */,
+				563A76B71D93E5E500C38EEA /* CoreGraphics.framework */,
 				96B7F1271D7CD67E00630339 /* Alamofire.framework */,
 				187445E71C97E8BE008CF709 /* MessageUI.framework */,
 				96FF9EFE1C720A10004B0F6A /* AVFoundation.framework */,
@@ -831,7 +860,10 @@
 				182B560E1C5F27C20013F85A /* ItemCell.xib in Resources */,
 				1875A8E01C33C86000728680 /* LaunchScreen.storyboard in Resources */,
 				182B56101C5F27C20013F85A /* SectionCell.xib in Resources */,
+				560D566E1D9407340023D284 /* AcousticModelSpanish.bundle in Resources */,
 				968A2EAA1C6C73F500951720 /* Assets.xcassets in Resources */,
+				560D566D1D9407340023D284 /* AcousticModelEnglish.bundle in Resources */,
+				560D56741D9411380023D284 /* Record Button.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1112,6 +1144,10 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = lingo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1131,6 +1167,10 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = lingo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

@@ -18,7 +18,7 @@ import ZLSwipeableViewSwift
 import AVFoundation
 
 
-class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UITextFieldDelegate {
+class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UITextFieldDelegate, OEEventsObserverDelegate {
   var debugLabel: UILabel?
   var emptyView: UIView!
   var cardView: UIView!
@@ -50,9 +50,26 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
   
   var currentRetryCount = 0
   let maxRetryCount = 3
-  
+    
+    
+  var lmPath: String!
+  var dicPath: String!
+  var wordsToAppend: Array<String> = []
+  var currentWord: String!
+  var kLevelUpdatesPerSecond = 18
+  var openEarsEventsObserver = OEEventsObserver()
+  var startupFailedDueToLackOfPermissions = Bool()
+  //var heardTextView: UITextView!
+    var heardTextView: UITextField!
+  //var statusTextView: UITextView!
+  let image = UIImage(named: "Record Button.png")
+  var recordButton = UIButton()
+  var buttonFlashing = false
+
+ 
   
   override func loadView() {
+    print("'this is a loadView'")
     super.loadView()
     navigationController?.navigationBar.translucent = false
     view.backgroundColor = App.windowBackgroundColor
@@ -163,6 +180,28 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
     }
     
     
+    recordButton = UIButton(frame: CGRect(x: self.view.frame.size.width / 2 - 70, y: self.view.frame.size.height - 220, width: 100, height: 80))
+    
+    recordButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+    recordButton.setImage(image, forState: UIControlState.Normal)
+    recordButton.addTarget(self, action: #selector(togglePlay), forControlEvents: .TouchUpInside)
+    //containerView.addSubview(recordButton)
+    /*heardTextView = UITextField().then {
+        $0.placeholder = "단어를 입력하세요."
+        $0.textAlignment = .Center
+        $0.font = UIFont.systemFontOfSize(18)
+        $0.keyboardType = .ASCIICapable
+        $0.autocorrectionType = .No
+        $0.autocapitalizationType = .None
+        $0.layer.borderColor = UIColor.lightGrayColor().CGColor
+        $0.layer.borderWidth = 1
+        $0.layer.cornerRadius = 10
+        $0.layer.masksToBounds = true
+    }
+    containerView.addSubview(heardTextView)*///필요 없음
+
+    
+    
     
     if debug {
       debugLabel = UILabel().then {
@@ -176,14 +215,52 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
       }
     }
   }
+    
+  func togglePlay() {
+    if !buttonFlashing {
+        startFlashingbutton()
+        startListening()
+    } else {
+        stopFlashingbutton()
+        stopListening()
+    }
+  }
+    
+    
+  func startFlashingbutton() {
+        
+      buttonFlashing = true
+      recordButton.alpha = 1
+    
+      UIView.animateWithDuration(0.5 , delay: 0.0, options: [UIViewAnimationOptions.CurveEaseInOut, UIViewAnimationOptions.Repeat, UIViewAnimationOptions.Autoreverse, UIViewAnimationOptions.AllowUserInteraction], animations: {
+            
+          self.recordButton.alpha = 0.1
+        
+          }, completion: {Bool in
+      })
+  }
+    
+  func stopFlashingbutton() {
+        
+      buttonFlashing = false
+        
+      UIView.animateWithDuration(0.1, delay: 0.0, options: [UIViewAnimationOptions.CurveEaseInOut, UIViewAnimationOptions.BeginFromCurrentState], animations: {
+            
+          self.recordButton.alpha = 1
+            
+          }, completion: {Bool in
+      })
+  }
   
   override func viewDidLoad() {
+    //print("'how often viewDidLoad is invoked '")
     super.viewDidLoad()
     wordTextField.delegate = self
     guard let learningManager = learningManager else {
       self.dismissViewControllerAnimated(false, completion: nil)
       return
     }
+    
     let answerIndicatorViewHeight = CGFloat(16)
     answerIndicatorView = AnswerIndicatorView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: answerIndicatorViewHeight), withQuestions: learningManager.learningWordIds.count)
     emptyView.addSubview(answerIndicatorView)
@@ -193,11 +270,23 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
       $0.height.equalTo(16)
     }
     self.title = learningManager.groupName
-    Whispers.murmur("그림과 뜻을 보고 연상되는 단어를 적어주세요.")
+    Whispers.murmur("그림과 뜻을 보고 연상되는 단어를 적어주세요.")//not working?
     editionId = SessionManager.instance.editionManager!.editionId
     realm = try! Realm()
     currentWordIndex = 0
     words = realm.objects(Word).filter("id IN %@", learningManager.learningWordIds).map { $0 }
+    print("'words in viewDidLoad' \(words)")
+    
+    //단어는 'n'
+    switch words.first!.form {
+    case "talk":
+        containerView.addSubview(recordButton)
+    case "idiom":
+        containerView.addSubview(recordButton)
+    default:
+        break
+    }
+    
     if !learningManager.keepOrder {
       words.shuffleInPlace()
     }
@@ -209,6 +298,7 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
     let toggleStar = UITapGestureRecognizer(target: self, action: #selector(LearningStep3ViewController.toggleStarred))
     toggleStar.numberOfTapsRequired = 1
     starView.addGestureRecognizer(toggleStar)
+    
   }
   
   override func viewWillAppear(animated: Bool) {
@@ -217,6 +307,8 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
     navigationItem.rightBarButtonItem = UIBarButtonItem(title: "3단계", style: .Plain, target: nil, action: Selector(""))
     navigationItem.hidesBackButton = true
     answerIndicatorView.layoutIfNeeded()
+
+    
   }
   
   
@@ -227,10 +319,20 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
   }
   
   func updateCurrentWord() {
+    print("'updateCurrentWord currentWordIndex ' \(currentWordIndex)")
     wordTextField.textColor = UIColor.blackColor()
     wordTextField.text = nil
     currentRetryCount = 0
     let word = words[currentWordIndex]
+    let fullNameArr : [String] = word.word.componentsSeparatedByString(" ")//make the word in separate between every space, then put it in the array
+    for i in 0 ..< fullNameArr.count {
+        wordsToAppend.append(fullNameArr[i])
+        //print("element of wordsToAppend \(wordsToAppend[i])")
+    }
+    //print("fullNameArr length is \(fullNameArr.count)")
+    print("curruentword in updateCurrentWord() \(word.word) filename \(word.filename) currentWordIndex \(currentWordIndex)")
+    wordsToAppend.append(word.word)
+    //print("In Array \(wordsToAppend[0]) array length \(wordsToAppend.count)")//swipe할때마다 갱신됨
     answerCandidates = AnswerManager.getAnswerCandidates(word.word)
     answerIndicatorView.moveCurrentIndex(currentWordIndex)
     if loadImageDisposable != nil {
@@ -248,35 +350,52 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
     }
     
     playAudio(word.filename, nextQuestionUponFinish: false)
+    loadOpenEars()
   }
   
   func checkAnswer(input: String) {
+    //print("'checkAnswer currentWordIndex' \(currentWordIndex) and words in checkAnswer \(words)")
+    self.stopListening()
+    self.stopFlashingbutton()
     let currentWord = words[currentWordIndex]
+    print("'words in checkAnswer' \(words)")
+    print("'checkAnswer currentWordFilname' \(currentWord.filename) currentWord \(currentWord.word) currentWordIndex \(currentWordIndex) and input \(input) 'answerCandidates' \(answerCandidates)" )
     let answerStatus = AnswerManager.checkAnswer(input, answerCandidates: answerCandidates)
     if answerStatus == .Correct {
+      print("Correct")
+      wordsToAppend.removeAll()
       wordTextField.textColor = App.primaryColor
       wordTextField.resignFirstResponder()
+      wordTextField.text = currentWord.word
       answerIndicatorView.updateAnswerStatus(answerStatus, withIndex: currentWordIndex)
+      print("or it is invoked here up correct??")
       playAudio(currentWord.filename, nextQuestionUponFinish: true)
       learningManager?.learnedWordIds.append(currentWord.id)
       SessionManager.instance.editionManager?.learnWord(learningManager!.groupId, wordId: currentWord.id)
+      
     } else {
+      print("Incorrect")
       currentRetryCount += 1
       if currentRetryCount < maxRetryCount {
+        //buttonFlashing = false
         if maxRetryCount - currentRetryCount == 1 && currentWord.word.length > 2 {
           var hint = currentWord.word.substringToIndex(currentWord.word.startIndex.advancedBy(2))
           for _ in 0..<(currentWord.word.length - hint.length) {
             hint += "*"
           }
+
           Whispers.error("마지막 힌트는 \(hint)입니다.", self.navigationController)
         } else {
+
           Whispers.error("정답이 아닙니다.", self.navigationController)
         }
       } else {
+        wordsToAppend.removeAll()//문장나올때 마다 갱신
         wordTextField.resignFirstResponder()
         wordTextField.textColor = App.errorColor
         wordTextField.text = currentWord.word
         answerIndicatorView.updateAnswerStatus(answerStatus, withIndex: currentWordIndex)
+        print("it is invoked here down incorrect??")//그러면 '정답이 아닙니다.' 를 보여주면 안되지 이게 여기서 실행되면... 뭐지... 도대체
         playAudio(currentWord.filename, nextQuestionUponFinish: true)
         SessionManager.instance.editionManager?.wrongLearningWord(learningManager!.groupId, wordId: currentWord.id)
       }
@@ -325,6 +444,7 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
   
   
   func textFieldShouldReturn(textField: UITextField) -> Bool {
+    
     if let answer = textField.text where answer.length > 0 {
       checkAnswer(answer)
       return true
@@ -340,6 +460,8 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
           return
         }
         if action == "종료" {
+          self!.stopListening()
+          self!.stopFlashingbutton()
           SELF.dismissViewControllerAnimated(true, completion: nil)
         }
       }.addDisposableTo(disposeBag)
@@ -353,6 +475,7 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
   }
   
   func playAudio(filename: String, nextQuestionUponFinish: Bool = false) {
+    print("playAudio filename \(filename) currentWordIndex \(currentWordIndex)")
     if let player = player where player.playing {
       player.stop()
     }
@@ -366,6 +489,8 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
             player.delegate = nil
           }
           player.play()
+          self.stopListening()
+          self.stopFlashingbutton()
           self.player = player
         }
         }, onError: { error in
@@ -380,22 +505,29 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
   
   // MARK: AVAudioPlayerDelegate
   func audioPlayerDidFinishPlaying(player: AVAudioPlayer, successfully flag: Bool) {
+    self.stopListening()
+    self.stopFlashingbutton()
+    
+    print("audioPlayerDidFinishPlaying currentWordIndex \(currentWordIndex) and words.count \(words.count)")
     if currentWordIndex + 1 < words.count {
-      currentWordIndex += 1
-      updateCurrentWord()
+      currentWordIndex += 1// currentWordIndex is getting increased by here, then it shows the word of the index in array.
+      print("just want to see \(currentWordIndex)")
+      updateCurrentWord()// and this method is invoked.
     } else {
       // check if the user finishes all
       if learningManager!.learnedWordIds.count == learningManager!.learningWordIds.count {
         // learn group and finish
+        
         showLearnedDialog()
       } else {
         restudy()
+        
       }
     }
     UIApplication.sharedApplication().endIgnoringInteractionEvents()
   }
   
-  func showLearnedDialog() {
+  func showLearnedDialog() {//when user passes(correct) all question, this method get invoked
     HUD.message("학습 데이터를 전송중입니다.")
     SessionManager.instance.editionManager!.learnGroup(learningManager!.groupId)
     $.wireframe.promptFor(self, title: "학습 완료", message: "\(learningManager!.groupName) 단원 학습을 완료하였습니다.", cancelAction: "끝내기", actions: [])
@@ -403,35 +535,39 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
         self.dismissViewControllerAnimated(true, completion: nil)
       }.addDisposableTo(disposeBag)
     HUD.hide()
+    
   }
   
   func restudy() {
+    print("재시험입니다!")
+    
     if let learningManager = learningManager {
       let numberOfIncorrectWords = learningManager.learningWordIds.count - learningManager.learnedWordIds.count
       
       $.wireframe.promptFor(self, title: "다시 공부", message: "외우지 못한 단어가 \(numberOfIncorrectWords)개 있습니다. 다시 공부해 주세요.", cancelAction: "학습 종료", actions: ["다시 공부"])
         .subscribeNext { action in
+
           switch action {
           case "다시 공부":
-            //          SELF.title = "1단계"
-            //          SELF.presentViewController(UINavigationController(rootViewController: LearningStep2ViewController()), animated: false, completion: nil)
+            
             let learningWordIds = Array(learningManager.learningWordIds)
-            learningManager.learningWordIds.removeAll()
+            learningManager.learningWordIds.removeAll()//learningWordIds 초기화
             for wordId in learningWordIds {
               if !learningManager.learnedWordIds.contains(wordId) {
-                learningManager.learningWordIds.append(wordId)
+                learningManager.learningWordIds.append(wordId)//incorrect words from speech session.
               }
             }
-            learningManager.notLearnedWordIds = Array(learningManager.learningWordIds)
+            learningManager.notLearnedWordIds = Array(learningManager.learningWordIds)//incorrect words from speech session.
             self.player?.delegate = nil
             self.player = nil
             if let delegate = self.restudyDelegate {
               delegate.onRestudy()
+                
             }
             self.navigationController?.popToRootViewControllerAnimated(true)
             
-            //          SELF.navigationController?.popViewControllerAnimated(true)
-            //          SELF.navigationController?.pushViewController(LearningStep2ViewController(), animated: true, completion: nil)
+            //self.navigationController?.popViewControllerAnimated(true)
+
           case "학습 종료":
             self.dismissViewControllerAnimated(true, completion: nil)
           default:
@@ -440,5 +576,56 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
         }.addDisposableTo(disposeBag)
     }
   }
+    
+    //OpenEars methods begin
+    
+    func loadOpenEars() {
+        print("'loadOpenEars currentWordIndex' \(currentWordIndex)")
+        self.openEarsEventsObserver = OEEventsObserver()
+        self.openEarsEventsObserver.delegate = self
+        
+        let lmGenerator: OELanguageModelGenerator = OELanguageModelGenerator()
+        
+        let name = "LanguageModelFileStarSaver"
+        for _ in 0..<wordsToAppend.count {
+            //print("loadOpenEars \(wordsToAppend[i])")
+        }
+        lmGenerator.generateLanguageModelFromArray(wordsToAppend, withFilesNamed: name, forAcousticModelAtPath: OEAcousticModel.pathToModel("AcousticModelEnglish"))
+        
+        lmPath = lmGenerator.pathToSuccessfullyGeneratedLanguageModelWithRequestedName(name)
+        dicPath = lmGenerator.pathToSuccessfullyGeneratedDictionaryWithRequestedName(name)
+    }
+
+    
+    func startListening() {
+        do {
+            try OEPocketsphinxController.sharedInstance().setActive(true)
+        } catch _ {
+        }
+        OEPocketsphinxController.sharedInstance().startListeningWithLanguageModelAtPath(lmPath, dictionaryAtPath: dicPath, acousticModelAtPath: OEAcousticModel.pathToModel("AcousticModelEnglish"), languageModelIsJSGF: false)
+    }
+    
+    func stopListening() {
+        OEPocketsphinxController.sharedInstance().stopListening()
+    }
+
+    
+    func pocketsphinxFailedNoMicPermissions() {
+        
+        NSLog("Local callback: The user has never set mic permissions or denied permission to this app's mic, so listening will not start.")
+        self.startupFailedDueToLackOfPermissions = true
+        if OEPocketsphinxController.sharedInstance().isListening {
+            let error = OEPocketsphinxController.sharedInstance().stopListening() // Stop listening if we are listening.
+            if(error != nil) {
+                NSLog("Error while stopping listening in micPermissionCheckCompleted: %@", error);
+            }
+        }
+    }
+    
+    func pocketsphinxDidReceiveHypothesis(hypothesis: String!, recognitionScore: String!, utteranceID: String!) {
+        print("wordTextFiledasdfasdf \(hypothesis)")
+        checkAnswer(hypothesis)
+        return
+    }
   
 }

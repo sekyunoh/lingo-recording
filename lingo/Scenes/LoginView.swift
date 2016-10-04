@@ -35,7 +35,7 @@ class LoginView: UIView {
   }
   
   private func initUI() {
-    self.backgroundColor = UIColor.whiteColor()
+    self.backgroundColor = UIColor.cyanColor()
     
     let tapper = UITapGestureRecognizer(target: self, action: #selector(LoginView.dismissKeyboard))
     tapper.cancelsTouchesInView = false
@@ -52,7 +52,7 @@ class LoginView: UIView {
       //      $0.titleLabelActiveColor = MaterialColor.blue.accent3
       $0.clearButtonMode = .WhileEditing
       
-      $0.detail = "올바른 이메일을 입력해주세요."
+      //$0.detail = "올바른 이메일을 입력해주세요."
       
       $0.returnKeyType = .Next
 //      $0.detailLabelActiveColor = MaterialColor.red.accent3
@@ -108,7 +108,7 @@ class LoginView: UIView {
     }
     
     passwordTextField.snp_makeConstraints {
-      $0.top.equalTo(emailTextField.snp_bottom).offset(32)
+      $0.top.equalTo(emailTextField.snp_bottom).offset(52)
       $0.left.equalTo(emailTextField)
       $0.right.equalTo(emailTextField)
     }

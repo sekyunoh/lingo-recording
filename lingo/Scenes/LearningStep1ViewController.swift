@@ -174,10 +174,13 @@ class LearningStep1ViewController: ViewController, RestudyDelegate {
   
   func didSwipe(view: UIView, inDirection: Direction, directionVector: CGVector) -> () {
     
+    
     guard let cardView = view as? FlashcardView where !words.isEmpty else {
+      
       return
     }
     let word = cardView.word
+   // print("the word is \(word)")
     if inDirection == .Right {
       learningManager!.learnedWordIds.append(word.id)
       if let learnedWordIndex = words.indexOf(word) where learnedWordIndex >= 0 {
@@ -186,7 +189,21 @@ class LearningStep1ViewController: ViewController, RestudyDelegate {
         words.removeAtIndex(learnedWordIndex)
         if words.isEmpty {
           swipeableView.discardViews()
-          goToNextStep()
+          //goToNextStep()
+            switch word.form {
+            case "talk":
+                print("it is talk or idiom")
+                goToStepThree()
+                
+            case "idiom":
+                print("it is talk or idiom")
+                goToStepThree()
+                
+            default:
+                print("it is a vocabulary")
+                goToNextStep()
+            }
+          
         }else {
           cardViewIndex = learnedWordIndex
           for view in swipeableView.activeViews() {
@@ -306,6 +323,28 @@ class LearningStep1ViewController: ViewController, RestudyDelegate {
       }.addDisposableTo(disposeBag)
     
   }
+    
+    func goToStepThree() {
+        $.wireframe.promptFor(self, title: "1단계 단어 암기 완료", message: "다음단계로 넘어가시겠습니까?\n다음단계 - 그림 보고 문장 말하기", cancelAction: "다시 암기", actions: ["다음 단계로"])
+            .subscribeNext { [weak self] action in
+                guard let SELF = self else {
+                    return
+                }
+                
+                switch action {
+                case "다시 암기" :
+                    SELF.setup(true)
+                case "다음 단계로":
+                    let step3VC = LearningStep3ViewController()
+                    step3VC.restudyDelegate = self
+                    SELF.navigationController?.pushViewController(step3VC, animated: true, completion: nil)
+                default:
+                    break
+                }
+                SELF.log.debug("action=\(action)")
+            }.addDisposableTo(disposeBag)
+        
+    }
   
   
   func playAudio(filename: String) {

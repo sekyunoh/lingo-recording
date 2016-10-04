@@ -18,8 +18,11 @@ class LoginViewController: ViewController, TextFieldDelegate {
   }
   
   var loginView: LoginView {
+
     return self.view as! LoginView
   }
+    
+    
   
   
   override func viewDidLoad() {
@@ -50,20 +53,33 @@ class LoginViewController: ViewController, TextFieldDelegate {
   func showSignup() {
     self.navigationController?.pushViewController(CheckSerialViewController(), animated: true)
   }
+    
+
   
   /// Executed when the 'return' key is pressed when using the emailField.
   func textFieldShouldReturn(textField: UITextField) -> Bool {
+    //print(textField.text)//Optional("student@imagevoca.com?")
     if let textField = textField as? TextField {
+        
+    //email
       if textField.returnKeyType == .Next {
-        guard let email = textField.text else {
-            textField.detail = "이메일을 입력해 주세요."
+        if textField.text != nil{
+            loginView.emailTextField.revealError = false
+            //do noting
+        }
+        if textField.text!.isEmpty {
+            
+            loginView.emailTextField.detail = "이메일을 입력해 주세요."
+            loginView.emailTextField.revealError = true
             textField.clearButtonMode = .WhileEditing
           return false
         }
         
-        if !email.isValidEmail() {
-          textField.detail = "올바른 이메일을 입력해 주세요."
-          return false
+        if !textField.text!.isValidEmail() {
+          
+          loginView.emailTextField.detail = "올바른 이메일을 입력해 주세요."
+          loginView.emailTextField.revealError = true
+            return false
         }
         
         
@@ -80,44 +96,66 @@ class LoginViewController: ViewController, TextFieldDelegate {
   
   
   func doLogin() {
-    guard let email = loginView.emailTextField.text else {
+   
+    if loginView.emailTextField.text != nil && loginView.emailTextField.text!.isValidEmail(){
+        loginView.emailTextField.revealError = false
+        //do nothing
+    }
+   
+    
+    if loginView.emailTextField.text!.isEmpty {
+    
       loginView.emailTextField.detail = "이메일을 입력해 주세요."
+      loginView.emailTextField.revealError = true
       return
     }
     
-    if !email.isValidEmail() {
+    if !loginView.emailTextField.text!.isValidEmail() {
       loginView.emailTextField.detail = "올바른 이메일을 입력해 주세요."
+      loginView.emailTextField.revealError = true
       return
     }
     
-//    loginView.emailTextField.detailLabelHidden = true
+    //이메일을 올바르게 입력하고 비밀번호를 아무것도 안쓰고 엔터(혹은 로긴버튼)치면 이게 실행
+    if loginView.passwordTextField.text != nil {
+        loginView.passwordTextField.revealError = false
+        //do nothing
+    }
     
-    guard let password = loginView.passwordTextField.text else {
+    if (loginView.passwordTextField.text!.isEmpty && !loginView.emailTextField.text!.isEmpty){
       loginView.passwordTextField.detail = "비밀번호를 입력해주세요."
+      loginView.passwordTextField.revealError = true
       return
     }
-    
-    if !password.isValidPassword() {
+    //이메일을 올바르게 입력하고 비밀번호를 5자리이하 엔터(혹은 로긴버튼)치면 이게 실행
+    if !loginView.passwordTextField.text!.isValidPassword() {
       loginView.passwordTextField.detail = "올바른 비밀번호를 입력해주세요."
+      loginView.passwordTextField.revealError = true
       return
     }
 //    loginView.passwordTextField.detailLabelHidden = true
-    HUD.progress()
+    //HUD.progress()
     API.instance.login([
-      "email":email,
-      "password":password,
+        
+      //"email":email,
+      //"password":password,
+      "email":loginView.emailTextField.text!,
+      "password":loginView.passwordTextField.text!,
       "device":currentDevice
       ]).subscribeOn($.backgroundWorkScheduler)
       .subscribe(onNext: { [weak self] response in
         guard let SELF = self else {
+          HUD.progress()
+          //여기다 놓으면 비번,이멜 일치하면 HUD 나오고 일치안하면 밑에 로그인실패 alert뜸!
           return
         }
-        if let authUser = response.data where response.status == 200 {
+        if let authUser = response.data  where response.status == 200 {
           let loggedInUser: [String: AnyObject] = [
             "id": authUser.id,
             "grade": authUser.grade,
             "role": authUser.role,
-            "email": email,
+            //"email": email,
+            "email":self!.loginView.emailTextField.text!,
             "name": authUser.name,
             "gender": authUser.gender,
             "schoolId": authUser.schoolId
@@ -137,16 +175,22 @@ class LoginViewController: ViewController, TextFieldDelegate {
 //            DefaultWireframe.switchRootViewController(UINavigationController(rootViewController: LauncherViewController()), animated: true, completion: nil)
           }
         }else {
-          HUD.error()
+            
+          /*HUD.error()
           if let message = response.message {
             Whispers.error(message, self?.navigationController)
           } else {
             Whispers.error("로그인에 실패하였습니다. 잠시 후 다시 시도해 주세요.", self?.navigationController)
-          }
+          }*/
         }
         }, onError: { error in
-          HUD.error()
-          print(error)
+            HUD.hide(true)
+            let alertView = UIAlertController(title: "로그인 실패!", message: "", preferredStyle: .Alert)
+            alertView.addAction(UIAlertAction(title: "확인", style: UIAlertActionStyle.Cancel) { _ in
+                })
+            self.presentViewController(alertView, animated: true, completion: nil)
+          //HUD.error()
+          print("errorrrrr\(error)")
       })
       .addDisposableTo(disposeBag)
   }
