@@ -18,7 +18,23 @@ import ZLSwipeableViewSwift
 import AVFoundation
 
 
-class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UITextFieldDelegate, OEEventsObserverDelegate {
+class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate,AVAudioRecorderDelegate,UITextFieldDelegate, OEEventsObserverDelegate {
+    
+  //자기 목소리 녹음
+  @IBOutlet weak var btnPlay: UIButton!
+  @IBOutlet weak var btnRecord: UIButton!
+  var audioRecorder:AVAudioRecorder!
+  var audioPlayer : AVAudioPlayer!
+  let isRecorderAudioFile = false
+  let recordSettings = [AVSampleRateKey : NSNumber(float: Float(44100.0)),
+                          AVFormatIDKey : NSNumber(int: Int32(kAudioFormatMPEG4AAC)),
+                          AVNumberOfChannelsKey : NSNumber(int: 1),
+                          AVEncoderAudioQualityKey : NSNumber(int: Int32(AVAudioQuality.Medium.rawValue))]
+  
+  var timer = NSTimer()
+  var clickToRecord: UILabel!
+  var itIsRecording: UILabel!
+    
   var debugLabel: UILabel?
   var emptyView: UIView!
   var cardView: UIView!
@@ -100,6 +116,7 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
       $0.layer.cornerRadius = 10.0;
       $0.clipsToBounds = true
     }
+    
     cardView.addSubview(containerView)
     containerView.snp_makeConstraints {
       $0.top.left.right.bottom.equalTo(cardView)
@@ -180,26 +197,25 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
     }
     
     
-    recordButton = UIButton(frame: CGRect(x: self.view.frame.size.width / 2 - 70, y: self.view.frame.size.height - 220, width: 100, height: 80))
-    
+    recordButton = UIButton(frame: CGRect(x: self.view.frame.size.width / 2 - 70, y: self.view.frame.size.height - 220, width: 100, height: 65))
     recordButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
     recordButton.setImage(image, forState: UIControlState.Normal)
     recordButton.addTarget(self, action: #selector(togglePlay), forControlEvents: .TouchUpInside)
-    //containerView.addSubview(recordButton)
-    /*heardTextView = UITextField().then {
-        $0.placeholder = "단어를 입력하세요."
+    
+    clickToRecord = UILabel().then {
+        $0.font = UIFont.boldSystemFontOfSize(18.0)
+        $0.backgroundColor = UIColor.whiteColor()
+        $0.textColor = UIColor.blackColor()
+        $0.text = "버튼을 눌러 녹음하세요"
         $0.textAlignment = .Center
-        $0.font = UIFont.systemFontOfSize(18)
-        $0.keyboardType = .ASCIICapable
-        $0.autocorrectionType = .No
-        $0.autocapitalizationType = .None
-        $0.layer.borderColor = UIColor.lightGrayColor().CGColor
-        $0.layer.borderWidth = 1
-        $0.layer.cornerRadius = 10
-        $0.layer.masksToBounds = true
     }
-    containerView.addSubview(heardTextView)*///필요 없음
-
+    
+    containerView.addSubview(clickToRecord)
+    clickToRecord.snp_makeConstraints {
+        $0.left.equalTo(definitionHeader.snp_right).offset(8)
+        $0.right.equalTo(containerView).offset(0)
+        $0.top.equalTo(definitionHeader).offset(40)
+    }
     
     
     
@@ -220,9 +236,27 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
     if !buttonFlashing {
         startFlashingbutton()
         startListening()
+        //자기 목소리 녹음
+        let audioSession = AVAudioSession.sharedInstance()
+        do {
+            try audioSession.setCategory(AVAudioSessionCategoryPlayAndRecord)
+            try audioRecorder = AVAudioRecorder(URL: self.directoryURL()!,
+                                                settings: recordSettings)
+            audioRecorder.prepareToRecord()
+        } catch {
+        }
+        do {
+            //self.btnRecord.setTitle("Stop", forState: UIControlState.Normal)
+            //self.btnPlay.enabled = false
+            try audioSession.setActive(true)
+            audioRecorder.record()
+        } catch {
+        }
+        
     } else {
         stopFlashingbutton()
         stopListening()
+        
     }
   }
     
@@ -319,6 +353,7 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
   }
   
   func updateCurrentWord() {
+    timer.invalidate()
     print("'updateCurrentWord currentWordIndex ' \(currentWordIndex)")
     wordTextField.textColor = UIColor.blackColor()
     wordTextField.text = nil
@@ -355,6 +390,7 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
   
   func checkAnswer(input: String) {
     //print("'checkAnswer currentWordIndex' \(currentWordIndex) and words in checkAnswer \(words)")
+    
     self.stopListening()
     self.stopFlashingbutton()
     let currentWord = words[currentWordIndex]
@@ -395,9 +431,11 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
         wordTextField.textColor = App.errorColor
         wordTextField.text = currentWord.word
         answerIndicatorView.updateAnswerStatus(answerStatus, withIndex: currentWordIndex)
-        print("it is invoked here down incorrect??")//그러면 '정답이 아닙니다.' 를 보여주면 안되지 이게 여기서 실행되면... 뭐지... 도대체
+        //print("it is invoked here down incorrect??")//그러면 '정답이 아닙니다.' 를 보여주면 안되는데
         playAudio(currentWord.filename, nextQuestionUponFinish: true)
         SessionManager.instance.editionManager?.wrongLearningWord(learningManager!.groupId, wordId: currentWord.id)
+        checkIfLearnedAllorRestudy()
+        
       }
     }
   }
@@ -502,30 +540,53 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
           }
       }).addDisposableTo(disposeBag)
   }
+    
+    func checkIfLearnedAllorRestudy(){
+        self.stopFlashingbutton()
+        self.stopListening()
+        if currentWordIndex + 1 < words.count {
+          currentWordIndex += 1// currentWordIndex is getting increased by here, then it shows the word of the index in array.
+          //print("just want to see \(currentWordIndex)")
+          timer = NSTimer.scheduledTimerWithTimeInterval(5, target: self, selector: #selector(LearningStep3ViewController.updateCurrentWord), userInfo: nil, repeats: true)
+        
+          //updateCurrentWord()// and this method is invoked.
+        } else {
+          // check if the user finishes all
+          if learningManager!.learnedWordIds.count == learningManager!.learningWordIds.count {
+            // learn group and finish
+    
+            showLearnedDialog()
+          } else {
+            restudy()
+    
+          }
+        }
+        UIApplication.sharedApplication().endIgnoringInteractionEvents()
+    }
   
   // MARK: AVAudioPlayerDelegate
-  func audioPlayerDidFinishPlaying(player: AVAudioPlayer, successfully flag: Bool) {
-    self.stopListening()
-    self.stopFlashingbutton()
-    
-    print("audioPlayerDidFinishPlaying currentWordIndex \(currentWordIndex) and words.count \(words.count)")
-    if currentWordIndex + 1 < words.count {
-      currentWordIndex += 1// currentWordIndex is getting increased by here, then it shows the word of the index in array.
-      print("just want to see \(currentWordIndex)")
-      updateCurrentWord()// and this method is invoked.
-    } else {
-      // check if the user finishes all
-      if learningManager!.learnedWordIds.count == learningManager!.learningWordIds.count {
-        // learn group and finish
-        
-        showLearnedDialog()
-      } else {
-        restudy()
-        
-      }
-    }
-    UIApplication.sharedApplication().endIgnoringInteractionEvents()
-  }
+//  func audioPlayerDidFinishPlaying(player: AVAudioPlayer, successfully flag: Bool) {
+//    self.stopListening()
+//    self.stopFlashingbutton()
+//    
+//    print("audioPlayerDidFinishPlaying currentWordIndex \(currentWordIndex) and words.count \(words.count)")
+//    if currentWordIndex + 1 < words.count {
+//      currentWordIndex += 1// currentWordIndex is getting increased by here, then it shows the word of the index in array.
+//      print("just want to see \(currentWordIndex)")
+//      updateCurrentWord()// and this method is invoked.
+//    } else {
+//      // check if the user finishes all
+//      if learningManager!.learnedWordIds.count == learningManager!.learningWordIds.count {
+//        // learn group and finish
+//        
+//        showLearnedDialog()
+//      } else {
+//        restudy()
+//        
+//      }
+//    }
+//    UIApplication.sharedApplication().endIgnoringInteractionEvents()
+//  }
   
   func showLearnedDialog() {//when user passes(correct) all question, this method get invoked
     HUD.message("학습 데이터를 전송중입니다.")
@@ -603,9 +664,12 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
         } catch _ {
         }
         OEPocketsphinxController.sharedInstance().startListeningWithLanguageModelAtPath(lmPath, dictionaryAtPath: dicPath, acousticModelAtPath: OEAcousticModel.pathToModel("AcousticModelEnglish"), languageModelIsJSGF: false)
+        
+        
     }
     
     func stopListening() {
+        
         OEPocketsphinxController.sharedInstance().stopListening()
     }
 
@@ -623,9 +687,64 @@ class LearningStep3ViewController: ViewController, AVAudioPlayerDelegate, UIText
     }
     
     func pocketsphinxDidReceiveHypothesis(hypothesis: String!, recognitionScore: String!, utteranceID: String!) {
+        audioRecorder.stop()
+        let audioSession = AVAudioSession.sharedInstance()
+        do {
+            //self.btnRecord.setTitle("Record", forState: UIControlState.Normal)
+            //self.btnPlay.enabled = true
+            try audioSession.setActive(false)
+        } catch {
+        }
+        doPlayMyVoice()
+        
         print("wordTextFiledasdfasdf \(hypothesis)")
         checkAnswer(hypothesis)
         return
+    }
+    
+    //자기 목소리 녹음
+    //MARK:- Method store sound in Directory.
+    
+    func directoryURL() -> NSURL? {
+        let fileManager = NSFileManager.defaultManager()
+        let urls = fileManager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
+        let documentDirectory = urls[0] as NSURL
+        let soundURL = documentDirectory.URLByAppendingPathComponent("sound.m4a")
+        //print("soundURL: \(soundURL)")
+        return soundURL
+    }
+
+    func doPlayMyVoice() {
+        if !audioRecorder.recording {
+            self.audioPlayer = try! AVAudioPlayer(contentsOfURL: audioRecorder.url)
+            self.audioPlayer.prepareToPlay()
+            self.audioPlayer.delegate = self
+            self.audioPlayer.play()
+        }
+    }
+    
+    //MARK:- AudioRecordDelegate
+    func audioRecorderDidFinishRecording(recorder: AVAudioRecorder, successfully flag: Bool) {
+        print(flag)
+    }
+    
+    //MARK:- AVAudioPlayerDelegate
+    func audioPlayerDidFinishPlaying(player: AVAudioPlayer, successfully flag: Bool) {
+        self.stopListening()
+        self.stopFlashingbutton()
+        print("when this is invoked??")
+        print(flag)
+    }
+    func audioPlayerDecodeErrorDidOccur(player: AVAudioPlayer, error: NSError?){
+        print(error.debugDescription)
+    }
+    internal func audioPlayerBeginInterruption(player: AVAudioPlayer){
+        print(player.debugDescription)
+    }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
     }
   
 }
